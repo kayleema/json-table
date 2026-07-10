@@ -74,7 +74,7 @@ export function JsonTableDemo() {
         </div>
       </div>
 
-      <CopyCommand command="npx shadcn@latest add https://json-table.vercel.app/r/json-table.json" />
+      <CopyCommand command="npx shadcn@latest add https://json-table.kaylee.jp/r/json-table.json" />
 
       <div className="flex flex-col gap-6">
         <h2 className="text-xl font-semibold tracking-tight">Examples</h2>

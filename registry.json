@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "kaylee-registry",
-  "homepage": "https://json-table.vercel.app",
+  "homepage": "https://json-table.kaylee.jp",
   "items": [
     {
       "name": "json-table",
