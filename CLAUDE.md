@@ -24,19 +24,21 @@ To verify a change end-to-end (not just typecheck): rebuild the registry, serve 
 
 ### Authoring path vs. consumer path (the one non-obvious thing here)
 
-Source for the distributed component lives under `registry/new-york/` and its files import each other using **authoring-repo-relative paths** (e.g. `registry/new-york/ui/json-table.tsx` imports from `@/registry/new-york/lib/json-table-utils`), matching the convention `shadcn build` expects. This is deliberate, not a mistake: `shadcn build` embeds that file content verbatim into `public/r/json-table.json` with no import rewriting at build time. The rewriting happens later, client-side, when a consumer runs `shadcn add` — the CLI rewrites those `@/registry/<style>/...` paths to the consumer's own aliases (`@/components/ui/...`, `@/lib/...`) based on each file's declared `type`/`target` in `registry.json`. So:
+Source for the distributed component lives under `registry/new-york/` and, if it ever needs to import another *registry* file, should use an **authoring-repo-relative path** (e.g. `@/registry/new-york/ui/some-other-file`), matching the convention `shadcn build` expects. This is deliberate, not a mistake: `shadcn build` embeds file content verbatim into `public/r/json-table.json` with no import rewriting at build time. The rewriting happens later, client-side, when a consumer runs `shadcn add` — the CLI rewrites those `@/registry/<style>/...` paths to the consumer's own aliases (`@/components/ui/...`, `@/lib/...`) based on each file's declared `type`/`target` in `registry.json`. So:
 
 - Files under `registry/new-york/` are the *published* source — never import them via `@/lib/...` or `@/components/ui/...` even though those paths happen to resolve locally too (they'd resolve to the wrong file, or to this site's own copy rather than the registry's canonical one).
-- Files under `components/`, `lib/utils.ts`, `components/ui/table.tsx` at the repo root are this *demo site's own* consumption of the registry (plus its own unrelated UI, like `copy-command.tsx` and `open-in-v0-button.tsx`) — ordinary Next.js app code, not distributed to anyone.
+- Files under `components/`, `lib/utils.ts`, `components/ui/table.tsx` at the repo root are this *demo site's own* consumption of the registry (plus its own unrelated UI, like `copy-command.tsx`, `code-block.tsx`, and `open-in-v0-button.tsx`) — ordinary Next.js app code, not distributed to anyone.
 - The demo page (`components/json-table-demo.tsx`) imports `JsonTable` from `@/registry/new-york/ui/json-table` specifically so the site always demos the exact source that ships, not a stale copy.
 
 ### registry.json
 
 Single source of truth for what gets published. Each item's `files[]` entries pair an authoring `path` with a `target` (using `@ui/`, `@lib/` alias placeholders) telling the consumer CLI where to place the file. `registryDependencies: ["table"]` means the CLI auto-installs the *official* shadcn `table` component too — this repo does not publish its own copy of `table.tsx`; the local `components/ui/table.tsx` here exists only so the demo site itself can render `<Table>`.
 
-### The component (`registry/new-york/ui/json-table.tsx` + `.../lib/json-table-utils.ts`)
+**The `json-table` item is intentionally a single file**, even though its helpers (`getValueKind`, `translateKey`, etc.) would cleanly factor into a separate `registry:lib` file. They used to — that split broke the template's "Open in v0" button: v0.dev's preview generator, given a multi-file item with no `registry:page` entry and no file with a default export, picked the wrong file (the lib helper) to try to render as the page component. The single-file `hello-world`/`example-form`-style items in the original template never hit this because there was no second file to be ambiguous about. If you're tempted to split this component again for readability, know that it needs re-verifying against "Open in v0" specifically, not just `shadcn add` — the two integrations parse a registry item differently and only one of them is covered by the consumer-install verification step above.
 
-`JsonTable` recursively dispatches on a value's shape (`getValueKind` in `json-table-utils.ts`): plain object → two-column key/value `<Table>`; array of plain objects → sub-table with columns = the union of every item's keys (not just the first item's, so heterogeneous arrays still render sanely); array of primitives → inline comma list, not a sub-table; mixed-type array → `<ul>` of independently-rendered items; empty object/array → literal `{}`/`[]` placeholder.
+### The component (`registry/new-york/ui/json-table.tsx`)
+
+`JsonTable` recursively dispatches on a value's shape (`getValueKind`): plain object → two-column key/value `<Table>`; array of plain objects → sub-table with columns = the union of every item's keys (not just the first item's, so heterogeneous arrays still render sanely); array of primitives → inline comma list, not a sub-table; mixed-type array → `<ul>` of independently-rendered items; empty object/array → literal `{}`/`[]` placeholder. `translateKey` looks up the optional `keyTranslations` prop (key name → localized label, context-independent, values never translated) wherever a key renders as text — the object case's key column and the array-of-objects case's column headers.
 
 Two things that look like they'd be simpler but aren't, for real reasons:
 
@@ -45,6 +47,15 @@ Two things that look like they'd be simpler but aren't, for real reasons:
 - **Primitive type colors are hardcoded Tailwind palette classes (`text-blue-600 dark:text-blue-400` etc.), not shadcn's `--chart-*` theme tokens.** Those tokens are zero-chroma grayscale under shadcn's default "neutral" base color — using them would make every primitive type render as indistinguishable gray for most consumers. This was also only caught by installing into a fresh consumer app and looking at it, not by local dev testing against this repo's own (colorful) theme.
 
 `maxDepth` (default 20) is a separate, unrelated safety valve against pathologically deep non-circular nesting.
+
+### Demo site localization (English/Japanese)
+
+This is localization of the *demo site's own UI chrome* (headings, button labels, example descriptions) — unrelated to the component's `keyTranslations` prop, which localizes JSON keys inside the rendered table. Two different concerns, two different mechanisms, both present in this repo.
+
+- `lib/i18n/dictionaries.ts` holds the `en`/`ja` string tables; `ja`'s type is pinned to `typeof en` so a missing key is a type error, not a silent fallback to English.
+- `lib/i18n/get-initial-locale.ts` is server-only (`next/headers`) and decides the initial locale per-request: an explicit `locale` cookie wins, otherwise it parses `Accept-Language`. This is why `app/layout.tsx` (and therefore the whole site) is dynamically rendered rather than static — reading the request's headers forces that.
+- `lib/i18n/locale-context.tsx` is the client-side `LocaleProvider`/`useLocale()` — the toggle in `components/language-toggle.tsx` calls `setLocale`, which updates React state and writes the cookie so the choice persists across visits.
+- Because `useLocale()` needs React context, `components/json-table-demo.tsx` and `components/page-header.tsx` are both client components. `app/layout.tsx` and `app/page.tsx` stay server components — they just compute the initial locale and render the client tree.
 
 ### v1 scope note
 

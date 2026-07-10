@@ -15,11 +15,6 @@
           "path": "registry/new-york/ui/json-table.tsx",
           "type": "registry:ui",
           "target": "@ui/json-table.tsx"
-        },
-        {
-          "path": "registry/new-york/lib/json-table-utils.ts",
-          "type": "registry:lib",
-          "target": "@lib/json-table-utils.ts"
         }
       ]
     }
