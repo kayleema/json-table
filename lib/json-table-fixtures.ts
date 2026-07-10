@@ -53,6 +53,13 @@ export const edgeCasesFixture = {
   wideTable: [wideRow, wideRow],
 }
 
+export const keyTranslationsFixture: Record<string, string> = {
+  id: "ID",
+  name: "名前",
+  email: "メール",
+  active: "有効",
+}
+
 export function createCircularFixture(): Record<string, unknown> {
   const node: Record<string, unknown> = { name: "self-referencing" }
   node.self = node

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { dictionaries } from "@/lib/i18n/dictionaries";
+import { getInitialLocale } from "@/lib/i18n/get-initial-locale";
+import { LocaleProvider } from "@/lib/i18n/locale-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,23 +15,30 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "JSON Table — shadcn/ui registry",
-  description:
-    "A shadcn/ui-compatible component that renders arbitrary JSON as a nested table. Install with the shadcn CLI.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getInitialLocale();
+  const dict = dictionaries[locale];
+  return {
+    title: dict.meta.title,
+    description: dict.meta.description,
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialLocale = await getInitialLocale();
+
   return (
-    <html lang="en">
+    <html lang={initialLocale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <LocaleProvider initialLocale={initialLocale}>
+          {children}
+        </LocaleProvider>
       </body>
     </html>
   );

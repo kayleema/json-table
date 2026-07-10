@@ -56,6 +56,13 @@ export function getPrimitiveTypeClass(value: unknown): string {
   }
 }
 
+export function translateKey(
+  key: string,
+  keyTranslations?: Record<string, string>
+): string {
+  return keyTranslations?.[key] ?? key
+}
+
 export function formatPrimitiveValue(value: unknown): string {
   if (value === null) return "null"
   if (value === undefined) return "undefined"

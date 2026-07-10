@@ -7,9 +7,11 @@ import { cn } from "@/lib/utils"
 
 export function CopyCommand({
   command,
+  label = "Copy command",
   className,
 }: {
   command: string
+  label?: string
   className?: string
 }) {
   const [copied, setCopied] = React.useState(false)
@@ -24,7 +26,7 @@ export function CopyCommand({
       <code className="overflow-x-auto whitespace-nowrap">{command}</code>
       <button
         type="button"
-        aria-label="Copy command"
+        aria-label={label}
         onClick={() => {
           navigator.clipboard.writeText(command)
           setCopied(true)

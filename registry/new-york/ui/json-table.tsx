@@ -14,6 +14,7 @@ import {
   getPrimitiveTypeClass,
   getUniformColumns,
   getValueKind,
+  translateKey,
 } from "@/registry/new-york/lib/json-table-utils"
 
 const DEFAULT_MAX_DEPTH = 20
@@ -22,15 +23,18 @@ interface JsonTableProps {
   data: unknown
   className?: string
   maxDepth?: number
+  /** Key name -> localized label. Values are never translated; unmapped keys render as-is. */
+  keyTranslations?: Record<string, string>
 }
 
 export function JsonTable({
   data,
   className,
   maxDepth = DEFAULT_MAX_DEPTH,
+  keyTranslations,
 }: JsonTableProps) {
   const ancestors = new WeakSet<object>()
-  const content = renderNode(data, 0, maxDepth, ancestors)
+  const content = renderNode(data, 0, maxDepth, ancestors, keyTranslations)
   const kind = getValueKind(data)
 
   if (kind === "object" || kind === "array-of-objects") {
@@ -56,7 +60,8 @@ function renderNode(
   value: unknown,
   depth: number,
   maxDepth: number,
-  ancestors: WeakSet<object>
+  ancestors: WeakSet<object>,
+  keyTranslations: Record<string, string> | undefined
 ): React.ReactNode {
   if (depth > maxDepth) {
     return <span className="text-muted-foreground italic">…</span>
@@ -76,11 +81,11 @@ function renderNode(
       const rows = entries.map(([key, val]) => (
         <TableRow key={key}>
           <TableCell className="w-1/3 align-top font-medium text-muted-foreground whitespace-normal">
-            {key}
+            {translateKey(key, keyTranslations)}
           </TableCell>
           <TableCell className="align-top whitespace-normal">
             <div className="w-fit max-w-full">
-              {renderNode(val, depth + 1, maxDepth, ancestors)}
+              {renderNode(val, depth + 1, maxDepth, ancestors, keyTranslations)}
             </div>
           </TableCell>
         </TableRow>
@@ -106,7 +111,7 @@ function renderNode(
             <TableCell key={column} className="align-top whitespace-normal">
               <div className="w-fit max-w-full">
                 {column in item ? (
-                  renderNode(item[column], depth + 1, maxDepth, ancestors)
+                  renderNode(item[column], depth + 1, maxDepth, ancestors, keyTranslations)
                 ) : (
                   <span className="text-muted-foreground">—</span>
                 )}
@@ -121,7 +126,7 @@ function renderNode(
           <TableHeader>
             <TableRow>
               {columns.map((column) => (
-                <TableHead key={column}>{column}</TableHead>
+                <TableHead key={column}>{translateKey(column, keyTranslations)}</TableHead>
               ))}
             </TableRow>
           </TableHeader>
@@ -150,7 +155,7 @@ function renderNode(
       const items = value as unknown[]
       ancestors.add(value as object)
       const listItems = items.map((item, index) => (
-        <li key={index}>{renderNode(item, depth + 1, maxDepth, ancestors)}</li>
+        <li key={index}>{renderNode(item, depth + 1, maxDepth, ancestors, keyTranslations)}</li>
       ))
       ancestors.delete(value as object)
       return <ul className="list-none space-y-1">{listItems}</ul>
