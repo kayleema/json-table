@@ -39,6 +39,9 @@ const en = {
     ariaLabel: "Switch language",
     targetLabel: "日本語",
   },
+  themeToggle: {
+    ariaLabel: "Toggle theme",
+  },
   usageExamples: {
     basicUsage: {
       title: "Basic usage",
@@ -54,6 +57,11 @@ const en = {
       description:
         "keyTranslations maps a key name to a label. Values are never translated.",
     },
+    customColors: {
+      title: "Custom type colors",
+      description:
+        "primitiveClassNames overrides the per-type value styling — pass your own classes, including theme tokens if your base color has distinguishable hues.",
+    },
   },
   dataExamples: {
     flatObject: {
@@ -63,6 +71,11 @@ const en = {
     localizedKeys: {
       title: "Localized keys",
       description: "keyTranslations maps a key to a label. Values are never translated.",
+    },
+    customColors: {
+      title: "Custom type colors",
+      description:
+        "primitiveClassNames overridden here with this site's own chart tokens. Whether tokens stay colorful depends on the consumer's base color — plain Tailwind colors (the default) always are.",
     },
     missingKeys: {
       title: "Array of objects with missing keys",
@@ -116,6 +129,9 @@ const ja: typeof en = {
     ariaLabel: "言語を切り替える",
     targetLabel: "English",
   },
+  themeToggle: {
+    ariaLabel: "テーマを切り替える",
+  },
   usageExamples: {
     basicUsage: {
       title: "基本的な使い方",
@@ -130,6 +146,11 @@ const ja: typeof en = {
       title: "キーのローカライズ",
       description: "keyTranslationsはキー名をラベルに変換します。値は翻訳されません。",
     },
+    customColors: {
+      title: "値の色をカスタマイズ",
+      description:
+        "primitiveClassNamesで型ごとの色を上書きできます。ベースカラーに十分な彩度があれば、テーマトークンも指定できます。",
+    },
   },
   dataExamples: {
     flatObject: {
@@ -139,6 +160,11 @@ const ja: typeof en = {
     localizedKeys: {
       title: "ローカライズされたキー",
       description: "keyTranslationsはキーをラベルに変換します。値は翻訳されません。",
+    },
+    customColors: {
+      title: "値の色をカスタマイズ",
+      description:
+        "ここではこのサイト自身のchartトークンでprimitiveClassNamesを上書きしています。トークンが実際に色付きになるかは利用者側のベースカラーに依存します（デフォルトのTailwindカラーは常に色付きです）。",
     },
     missingKeys: {
       title: "キーが欠けているオブジェクトの配列",

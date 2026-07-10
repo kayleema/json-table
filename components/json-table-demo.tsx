@@ -13,21 +13,59 @@ import {
   deepNestingFixture,
   edgeCasesFixture,
   keyTranslationsFixture,
+  primitiveClassNamesFixture,
   simpleObjectFixture,
 } from "@/lib/json-table-fixtures"
 
 const DATA_EXAMPLES = [
-  { key: "flatObject", data: simpleObjectFixture, keyTranslations: undefined },
+  {
+    key: "flatObject",
+    data: simpleObjectFixture,
+    keyTranslations: undefined,
+    primitiveClassNames: undefined,
+  },
   {
     key: "localizedKeys",
     data: arrayOfObjectsFixture,
     keyTranslations: keyTranslationsFixture,
+    primitiveClassNames: undefined,
   },
-  { key: "missingKeys", data: arrayOfObjectsMissingKeysFixture, keyTranslations: undefined },
-  { key: "primitiveArrays", data: arrayOfPrimitivesFixture, keyTranslations: undefined },
-  { key: "deepNesting", data: deepNestingFixture, keyTranslations: undefined },
-  { key: "edgeCases", data: edgeCasesFixture, keyTranslations: undefined },
-  { key: "circularReference", data: createCircularFixture(), keyTranslations: undefined },
+  {
+    key: "customColors",
+    data: simpleObjectFixture,
+    keyTranslations: undefined,
+    primitiveClassNames: primitiveClassNamesFixture,
+  },
+  {
+    key: "missingKeys",
+    data: arrayOfObjectsMissingKeysFixture,
+    keyTranslations: undefined,
+    primitiveClassNames: undefined,
+  },
+  {
+    key: "primitiveArrays",
+    data: arrayOfPrimitivesFixture,
+    keyTranslations: undefined,
+    primitiveClassNames: undefined,
+  },
+  {
+    key: "deepNesting",
+    data: deepNestingFixture,
+    keyTranslations: undefined,
+    primitiveClassNames: undefined,
+  },
+  {
+    key: "edgeCases",
+    data: edgeCasesFixture,
+    keyTranslations: undefined,
+    primitiveClassNames: undefined,
+  },
+  {
+    key: "circularReference",
+    data: createCircularFixture(),
+    keyTranslations: undefined,
+    primitiveClassNames: undefined,
+  },
 ] as const
 
 const USAGE_EXAMPLE_ITEMS = [
@@ -66,6 +104,21 @@ const keyTranslations = {
 
 export function Example({ data }: { data: unknown }) {
   return <JsonTable data={data} keyTranslations={keyTranslations} />
+}
+`,
+  },
+  {
+    key: "customColors",
+    code: `import { JsonTable } from "@/components/ui/json-table"
+
+const primitiveClassNames = {
+  string: "text-chart-1",
+  number: "text-chart-2",
+  boolean: "text-chart-4",
+}
+
+export function Example({ data }: { data: unknown }) {
+  return <JsonTable data={data} primitiveClassNames={primitiveClassNames} />
 }
 `,
   },
@@ -137,6 +190,7 @@ export function JsonTableDemo() {
               <JsonTable
                 data={example.data}
                 keyTranslations={example.keyTranslations}
+                primitiveClassNames={example.primitiveClassNames}
                 className="w-full"
               />
               <details className="text-sm text-muted-foreground">

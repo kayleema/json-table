@@ -60,6 +60,12 @@ export const keyTranslationsFixture: Record<string, string> = {
   active: "有効",
 }
 
+export const primitiveClassNamesFixture = {
+  string: "text-chart-1",
+  number: "text-chart-2",
+  boolean: "text-chart-4 font-medium",
+}
+
 export function createCircularFixture(): Record<string, unknown> {
   const node: Record<string, unknown> = { name: "self-referencing" }
   node.self = node

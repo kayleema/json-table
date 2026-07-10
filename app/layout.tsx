@@ -4,6 +4,8 @@ import "./globals.css";
 import { dictionaries } from "@/lib/i18n/dictionaries";
 import { getInitialLocale } from "@/lib/i18n/get-initial-locale";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
+import { themeInitScript } from "@/lib/theme/theme-script";
+import { ThemeProvider } from "@/lib/theme/theme-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,9 +38,12 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <LocaleProvider initialLocale={initialLocale}>
-          {children}
-        </LocaleProvider>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <ThemeProvider>
+          <LocaleProvider initialLocale={initialLocale}>
+            {children}
+          </LocaleProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

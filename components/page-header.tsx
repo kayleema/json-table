@@ -1,6 +1,7 @@
 "use client"
 
 import { LanguageToggle } from "@/components/language-toggle"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { useLocale } from "@/lib/i18n/locale-context"
 
 export function PageHeader() {
@@ -12,7 +13,10 @@ export function PageHeader() {
         <h1 className="text-3xl font-bold tracking-tight">{dict.header.title}</h1>
         <p className="text-muted-foreground">{dict.header.description}</p>
       </div>
-      <LanguageToggle />
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <LanguageToggle />
+      </div>
     </header>
   )
 }

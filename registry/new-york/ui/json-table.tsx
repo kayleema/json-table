@@ -12,12 +12,24 @@ import {
 
 const DEFAULT_MAX_DEPTH = 20
 
+type PrimitiveKind = "string" | "number" | "boolean" | "null" | "undefined"
+
+const DEFAULT_PRIMITIVE_CLASS_NAMES: Record<PrimitiveKind, string> = {
+  string: "text-blue-600 dark:text-blue-400",
+  number: "text-emerald-600 dark:text-emerald-400",
+  boolean: "text-amber-600 dark:text-amber-500 font-medium",
+  null: "text-muted-foreground italic",
+  undefined: "text-muted-foreground/60 italic",
+}
+
 interface JsonTableProps {
   data: unknown
   className?: string
   maxDepth?: number
   /** Key name -> localized label. Values are never translated; unmapped keys render as-is. */
   keyTranslations?: Record<string, string>
+  /** Overrides the default per-type value classes. Unset types keep their default. */
+  primitiveClassNames?: Partial<Record<PrimitiveKind, string>>
 }
 
 export function JsonTable({
@@ -25,9 +37,10 @@ export function JsonTable({
   className,
   maxDepth = DEFAULT_MAX_DEPTH,
   keyTranslations,
+  primitiveClassNames,
 }: JsonTableProps) {
   const ancestors = new WeakSet<object>()
-  const content = renderNode(data, 0, maxDepth, ancestors, keyTranslations)
+  const content = renderNode(data, 0, maxDepth, ancestors, keyTranslations, primitiveClassNames)
   const kind = getValueKind(data)
 
   if (kind === "object" || kind === "array-of-objects") {
@@ -92,19 +105,25 @@ function getUniformColumns(items: Record<string, unknown>[]): string[] {
   return columns
 }
 
-function getPrimitiveTypeClass(value: unknown): string {
-  if (value === null) return "text-muted-foreground italic"
-  if (value === undefined) return "text-muted-foreground/60 italic"
-  switch (typeof value) {
-    case "string":
-      return "text-blue-600 dark:text-blue-400"
-    case "number":
-      return "text-emerald-600 dark:text-emerald-400"
-    case "boolean":
-      return "text-amber-600 dark:text-amber-500 font-medium"
-    default:
-      return "text-foreground"
-  }
+function getPrimitiveTypeClass(
+  value: unknown,
+  primitiveClassNames: Partial<Record<PrimitiveKind, string>> | undefined
+): string {
+  const kind: PrimitiveKind | undefined =
+    value === null
+      ? "null"
+      : value === undefined
+        ? "undefined"
+        : typeof value === "string"
+          ? "string"
+          : typeof value === "number"
+            ? "number"
+            : typeof value === "boolean"
+              ? "boolean"
+              : undefined
+
+  if (!kind) return "text-foreground"
+  return primitiveClassNames?.[kind] ?? DEFAULT_PRIMITIVE_CLASS_NAMES[kind]
 }
 
 function translateKey(key: string, keyTranslations?: Record<string, string>): string {
@@ -123,7 +142,8 @@ function renderNode(
   depth: number,
   maxDepth: number,
   ancestors: WeakSet<object>,
-  keyTranslations: Record<string, string> | undefined
+  keyTranslations: Record<string, string> | undefined,
+  primitiveClassNames: Partial<Record<PrimitiveKind, string>> | undefined
 ): React.ReactNode {
   if (depth > maxDepth) {
     return <span className="text-muted-foreground italic">…</span>
@@ -147,7 +167,7 @@ function renderNode(
           </TableCell>
           <TableCell className="align-top whitespace-normal">
             <div className="w-fit max-w-full">
-              {renderNode(val, depth + 1, maxDepth, ancestors, keyTranslations)}
+              {renderNode(val, depth + 1, maxDepth, ancestors, keyTranslations, primitiveClassNames)}
             </div>
           </TableCell>
         </TableRow>
@@ -173,7 +193,7 @@ function renderNode(
             <TableCell key={column} className="align-top whitespace-normal">
               <div className="w-fit max-w-full">
                 {column in item ? (
-                  renderNode(item[column], depth + 1, maxDepth, ancestors, keyTranslations)
+                  renderNode(item[column], depth + 1, maxDepth, ancestors, keyTranslations, primitiveClassNames)
                 ) : (
                   <span className="text-muted-foreground">—</span>
                 )}
@@ -203,7 +223,7 @@ function renderNode(
         <span className="whitespace-normal break-words">
           {items.map((item, index) => (
             <React.Fragment key={index}>
-              <span className={getPrimitiveTypeClass(item)}>
+              <span className={getPrimitiveTypeClass(item, primitiveClassNames)}>
                 {formatPrimitiveValue(item)}
               </span>
               {index < items.length - 1 ? ", " : null}
@@ -217,7 +237,9 @@ function renderNode(
       const items = value as unknown[]
       ancestors.add(value as object)
       const listItems = items.map((item, index) => (
-        <li key={index}>{renderNode(item, depth + 1, maxDepth, ancestors, keyTranslations)}</li>
+        <li key={index}>
+          {renderNode(item, depth + 1, maxDepth, ancestors, keyTranslations, primitiveClassNames)}
+        </li>
       ))
       ancestors.delete(value as object)
       return <ul className="list-none space-y-1">{listItems}</ul>
@@ -226,7 +248,7 @@ function renderNode(
     case "primitive":
     default:
       return (
-        <span className={getPrimitiveTypeClass(value)}>
+        <span className={getPrimitiveTypeClass(value, primitiveClassNames)}>
           {formatPrimitiveValue(value)}
         </span>
       )
