@@ -1,23 +1,45 @@
-# registry-template
+# JSON Table
 
-You can use the `shadcn` CLI to run your own component registry. Running your own
-component registry allows you to distribute your custom components, hooks, pages, and
-other files to any React project.
+A shadcn/ui-compatible component that renders arbitrary JSON as a nested, recursive HTML table. Install it the same way you'd install any shadcn/ui component:
 
-> [!IMPORTANT]  
-> This template uses Tailwind v4. For Tailwind v3, see [registry-template-v3](https://github.com/shadcn-ui/registry-template-v3).
+```bash
+npx shadcn@latest add https://json-table.kaylee.jp/r/json-table.json
+```
 
-## Getting Started
+That's it — no npm package. The CLI copies the component source (and the `table` component it depends on) straight into your project.
 
-This is a template for creating a custom registry using Next.js.
+Live demo: [json-table.kaylee.jp](https://json-table.kaylee.jp)
 
-- The template uses a `registry.json` file to define components and their files.
-- The `shadcn build` command is used to build the registry.
-- The registry items are served as static files under `public/r/[name].json`.
-- The template also includes a route handler for serving registry items.
-- Every registry item are compatible with the `shadcn` CLI.
-- We have also added v0 integration using the `Open in v0` api.
+## Usage
+
+```tsx
+import { JsonTable } from "@/components/ui/json-table"
+
+<JsonTable data={yourJsonValue} />
+```
+
+- Plain objects render as two-column key/value tables.
+- Arrays of objects render as sub-tables, with columns covering the union of every item's keys.
+- Arrays of primitives render inline.
+- Mixed-type arrays render as a list of independently-rendered items.
+- Strings, numbers, booleans, `null`, and `undefined` are each styled distinctly.
+- Circular references render as `[Circular]` instead of crashing.
+
+Props: `data: unknown`, `className?: string`, `maxDepth?: number` (default `20`).
+
+## Developing this repo
+
+This repo is both the registry that publishes `json-table` and its own demo site.
+
+```bash
+npm install
+npm run dev     # regenerates the registry JSON, then starts the dev server
+```
+
+- Component source lives in `registry/new-york/`.
+- `registry.json` defines what gets published; `shadcn build` turns it into the static files served from `public/r/`.
+- See `CLAUDE.md` for the architecture notes that matter for making changes here (in particular, why the component's imports and its color choices look the way they do).
 
 ## Documentation
 
-Visit the [shadcn documentation](https://ui.shadcn.com/docs/registry) to view the full documentation.
+[shadcn registry docs](https://ui.shadcn.com/docs/registry)
