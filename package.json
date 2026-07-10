@@ -1,16 +1,16 @@
 {
-  "name": "registry",
+  "name": "json-table-site",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "npm run registry:build && next dev --turbopack",
+    "prebuild": "npm run registry:build",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "registry:build": "shadcn build"
   },
   "dependencies": {
-    "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -20,8 +20,7 @@
     "react-dom": "19.1.0",
     "shadcn": "^3.0.0",
     "tailwind-merge": "^3.3.1",
-    "tw-animate-css": "^1.3.6",
-    "zod": "^3.25.76"
+    "tw-animate-css": "^1.3.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
