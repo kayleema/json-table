@@ -1,5 +1,6 @@
 import { JsonTableDemo } from "@/components/json-table-demo"
 import { PageHeader } from "@/components/page-header"
+import { SiteFooter } from "@/components/site-footer"
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <main className="flex flex-col flex-1 gap-8">
         <JsonTableDemo />
       </main>
+      <SiteFooter />
     </div>
   )
 }

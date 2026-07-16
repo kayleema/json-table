@@ -42,6 +42,13 @@ const en = {
   themeToggle: {
     ariaLabel: "Toggle theme",
   },
+  footer: {
+    line1Prefix: "Brought to you by ",
+    line1Connector: " and ",
+    line1Suffix: ".",
+    line2Prefix: "If you like pattern making, sewing, or clothing design, try out ",
+    line2Suffix: "!",
+  },
   usageExamples: {
     basicUsage: {
       title: "Basic usage",
@@ -131,6 +138,13 @@ const ja: typeof en = {
   },
   themeToggle: {
     ariaLabel: "テーマを切り替える",
+  },
+  footer: {
+    line1Prefix: "",
+    line1Connector: " と ",
+    line1Suffix: " からお届け!",
+    line2Prefix: "型紙づくりや洋裁、お洋服のデザインが好きな方は、ぜひ",
+    line2Suffix: "を試してみてください!",
   },
   usageExamples: {
     basicUsage: {
